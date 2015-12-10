@@ -3,6 +3,7 @@ package com.bq.evernoteclient.notes.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,14 +25,22 @@ import com.evernote.edam.type.NoteSortOrder;
  * Created by David on 10/12/15.
  */
 public class NoteListActivity extends AppCompatActivity implements EvernoteClientCallback<NoteList>,
-        View.OnClickListener, NoteListAdapter.OnItemClickListener, AdapterView.OnItemSelectedListener {
+        View.OnClickListener, NoteListAdapter.OnItemClickListener, AdapterView.OnItemSelectedListener,
+        SwipeRefreshLayout.OnRefreshListener{
+
+    private static final int MAX_ITEMS = 20;
 
     private RecyclerView recyclerView;
     private FloatingActionButton addNoteButton;
     private ProgressBar progressBar;
     private Spinner sortSpinner;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private NoteListAdapter noteListAdapter;
+    private boolean isLastPage;
+    private boolean isLoading;
+    private int currentOffset = 0;
+    private NoteSortOrder selectedOrder;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,8 +55,11 @@ public class NoteListActivity extends AppCompatActivity implements EvernoteClien
         addNoteButton = (FloatingActionButton) findViewById(R.id.add_note_button);
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         sortSpinner = (Spinner) findViewById(R.id.sort_spinner);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
 
         addNoteButton.setOnClickListener(this);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent);
 
         initRecyclerView();
         initSortSpinner();
@@ -55,8 +67,10 @@ public class NoteListActivity extends AppCompatActivity implements EvernoteClien
     }
 
     private void retrieveNotes(NoteSortOrder order) {
-        showLoading();
-        EvernoteApiManager.getInstance(getApplicationContext()).retrieveNotes(order.getValue(), 0, this);
+        if (currentOffset == 0){
+            showLoading();
+        }
+        EvernoteApiManager.getInstance(getApplicationContext()).retrieveNotes(order.getValue(), currentOffset, this);
     }
 
     private void initRecyclerView() {
@@ -84,6 +98,12 @@ public class NoteListActivity extends AppCompatActivity implements EvernoteClien
     public void onSuccess(NoteList result) {
         noteListAdapter.addNotes(result);
         noteListAdapter.notifyDataSetChanged();
+        currentOffset += result.getNotesSize();
+        if (result.getNotesSize() >= MAX_ITEMS) {
+            noteListAdapter.addLoading();
+        } else {
+            isLastPage = true;
+        }
         hideLoading();
     }
 
@@ -102,6 +122,7 @@ public class NoteListActivity extends AppCompatActivity implements EvernoteClien
     }
 
     private void sortBy(NoteSortOrder order){
+        currentOffset = 0;
         noteListAdapter.clearData();
         retrieveNotes(order);
     }
@@ -112,6 +133,8 @@ public class NoteListActivity extends AppCompatActivity implements EvernoteClien
     }
 
     private void hideLoading(){
+        isLoading = false;
+        swipeRefreshLayout.setRefreshing(false);
         progressBar.setVisibility(View.GONE);
         recyclerView.setVisibility(View.VISIBLE);
     }
@@ -127,11 +150,12 @@ public class NoteListActivity extends AppCompatActivity implements EvernoteClien
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         switch (position) {
             case 0:
-                sortBy(NoteSortOrder.CREATED);
+                selectedOrder = NoteSortOrder.CREATED;
                 break;
             case 1:
-                sortBy(NoteSortOrder.TITLE);
+                selectedOrder = NoteSortOrder.TITLE;
         }
+        sortBy(selectedOrder);
     }
 
     @Override
@@ -139,4 +163,44 @@ public class NoteListActivity extends AppCompatActivity implements EvernoteClien
 
     }
 
+    public RecyclerView.OnScrollListener retrieveScrollListener(final RecyclerView.LayoutManager layoutManager){
+        RecyclerView.OnScrollListener
+                recyclerViewOnScrollListener = new RecyclerView.OnScrollListener() {
+
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                int visibleItemCount = layoutManager.getChildCount();
+                int totalItemCount = layoutManager.getItemCount();
+                int firstVisibleItemPosition = ((LinearLayoutManager)layoutManager).findFirstVisibleItemPosition();
+
+                if (!isLoading && !isLastPage) {
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                            && firstVisibleItemPosition >= 0
+                            && totalItemCount >= MAX_ITEMS) {
+                        loadMoreItems();
+                    }
+                }
+            }
+
+        };
+
+        return recyclerViewOnScrollListener;
+    }
+
+    private void loadMoreItems() {
+        isLoading = true;
+        retrieveNotes(selectedOrder);
+    }
+
+    @Override
+    public void onRefresh() {
+        sortBy(selectedOrder);
+    }
 }
