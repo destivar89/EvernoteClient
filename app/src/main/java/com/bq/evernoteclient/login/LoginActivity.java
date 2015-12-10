@@ -10,14 +10,8 @@ import android.widget.Button;
 
 import com.bq.evernoteclient.R;
 import com.bq.evernoteclient.evernoteapi.EvernoteApiManager;
-import com.bq.evernoteclient.evernoteapi.EvernoteClientCallback;
-import com.bq.evernoteclient.notes.NoteListActivity;
+import com.bq.evernoteclient.notes.activity.NoteListActivity;
 import com.evernote.client.android.EvernoteSession;
-import com.evernote.client.android.asyncclient.EvernoteCallback;
-import com.evernote.client.android.asyncclient.EvernoteNoteStoreClient;
-import com.evernote.client.android.login.EvernoteLoginFragment;
-import com.evernote.edam.notestore.NoteFilter;
-import com.evernote.edam.notestore.NoteList;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 

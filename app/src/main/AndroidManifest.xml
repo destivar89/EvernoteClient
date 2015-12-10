@@ -18,7 +18,9 @@
 
         <activity android:name="com.evernote.client.android.EvernoteOAuthActivity" />
         <activity android:name="com.evernote.client.android.login.EvernoteLoginActivity"/>
-        <activity android:name=".notes.NoteListActivity"/>
+        <activity android:name=".notes.activity.NoteListActivity"/>
+        <activity android:name=".notes.activity.NoteDetailActivity"/>
+        <activity android:name=".notes.activity.AddNoteActivity"/>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />

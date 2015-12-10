@@ -1,4 +1,4 @@
-package com.bq.evernoteclient.notes;
+package com.bq.evernoteclient.notes.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,10 +9,6 @@ import android.widget.TextView;
 import com.bq.evernoteclient.R;
 import com.evernote.edam.notestore.NoteList;
 import com.evernote.edam.type.Note;
-import com.evernote.edam.type.Notebook;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by David on 10/12/15.
@@ -20,6 +16,9 @@ import java.util.List;
 public class NoteListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     private NoteList notes = new NoteList();
+
+    private OnItemClickListener onItemClickListener;
+    private boolean isLoadingFooterAdded;
 
     public void addNotes(NoteList notes) {
         for (Note note : notes.getNotes()) {
@@ -49,6 +48,18 @@ public class NoteListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return notes.getNotesSize();
     }
 
+    public Note getItem(int position){
+        return notes.getNotes().get(position);
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(View v, int position);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        onItemClickListener = listener;
+    }
+
     public class NoteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         public TextView title;
@@ -57,6 +68,7 @@ public class NoteListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         public NoteViewHolder(View itemView) {
 
             super(itemView);
+            itemView.setOnClickListener(this);
             title = (TextView) itemView.findViewById(R.id.title_textview);
             content = (TextView) itemView.findViewById(R.id.content_textview);
 
@@ -64,7 +76,7 @@ public class NoteListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         @Override
         public void onClick(View v) {
-
+            onItemClickListener.onItemClick(v, getAdapterPosition());
         }
     }
 }
