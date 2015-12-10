@@ -1,5 +1,6 @@
 package com.bq.evernoteclient.login;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,10 +10,16 @@ import android.widget.Button;
 
 import com.bq.evernoteclient.R;
 import com.bq.evernoteclient.evernoteapi.EvernoteApiManager;
+import com.bq.evernoteclient.evernoteapi.EvernoteClientCallback;
 import com.bq.evernoteclient.notes.NoteListActivity;
+import com.evernote.client.android.EvernoteSession;
+import com.evernote.client.android.asyncclient.EvernoteCallback;
+import com.evernote.client.android.asyncclient.EvernoteNoteStoreClient;
 import com.evernote.client.android.login.EvernoteLoginFragment;
+import com.evernote.edam.notestore.NoteFilter;
+import com.evernote.edam.notestore.NoteList;
 
-public class LoginActivity extends AppCompatActivity implements EvernoteLoginFragment.ResultCallback, View.OnClickListener{
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
     private EvernoteApiManager manager;
     private Button loginButton;
@@ -26,7 +33,7 @@ public class LoginActivity extends AppCompatActivity implements EvernoteLoginFra
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        manager = new EvernoteApiManager(getApplicationContext());
+        manager = EvernoteApiManager.getInstance(getApplicationContext());
 
         loginButton = (Button) findViewById (R.id.login_button);
         loginButton.setOnClickListener(this);
@@ -41,12 +48,22 @@ public class LoginActivity extends AppCompatActivity implements EvernoteLoginFra
     }
 
     @Override
-    public void onLoginFinished(boolean successful) {
-        if (successful){
-            Intent notesIntent = new Intent(this, NoteListActivity.class);
-            startActivity(notesIntent);
-        }else{
-            //TODO: show retry message
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case EvernoteSession.REQUEST_CODE_LOGIN:
+                if (resultCode == Activity.RESULT_OK) {
+                    Intent notesIntent = new Intent(this, NoteListActivity.class);
+                    startActivity(notesIntent);
+                } else {
+                    //TODO: show retry message
+                }
+                break;
+
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
+                break;
         }
     }
+
+
 }
