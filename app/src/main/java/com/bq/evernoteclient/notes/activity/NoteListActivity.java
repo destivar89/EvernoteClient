@@ -8,23 +8,28 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 
 import com.bq.evernoteclient.R;
 import com.bq.evernoteclient.evernoteapi.EvernoteApiManager;
 import com.bq.evernoteclient.evernoteapi.EvernoteClientCallback;
 import com.bq.evernoteclient.notes.adapter.NoteListAdapter;
 import com.evernote.edam.notestore.NoteList;
+import com.evernote.edam.type.NoteSortOrder;
 
 /**
  * Created by David on 10/12/15.
  */
 public class NoteListActivity extends AppCompatActivity implements EvernoteClientCallback<NoteList>,
-        View.OnClickListener, NoteListAdapter.OnItemClickListener{
+        View.OnClickListener, NoteListAdapter.OnItemClickListener, AdapterView.OnItemSelectedListener {
 
     private RecyclerView recyclerView;
     private FloatingActionButton addNoteButton;
     private ProgressBar progressBar;
+    private Spinner sortSpinner;
 
     private NoteListAdapter noteListAdapter;
 
@@ -40,17 +45,18 @@ public class NoteListActivity extends AppCompatActivity implements EvernoteClien
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         addNoteButton = (FloatingActionButton) findViewById(R.id.add_note_button);
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        sortSpinner = (Spinner) findViewById(R.id.sort_spinner);
 
         addNoteButton.setOnClickListener(this);
 
         initRecyclerView();
-        retrieveNotes();
+        initSortSpinner();
 
     }
 
-    private void retrieveNotes() {
+    private void retrieveNotes(NoteSortOrder order) {
         showLoading();
-        EvernoteApiManager.getInstance(getApplicationContext()).retrieveNotes(0, 0, this);
+        EvernoteApiManager.getInstance(getApplicationContext()).retrieveNotes(order.getValue(), 0, this);
     }
 
     private void initRecyclerView() {
@@ -64,6 +70,14 @@ public class NoteListActivity extends AppCompatActivity implements EvernoteClien
         noteListAdapter.setOnItemClickListener(this);
         recyclerView.setAdapter(noteListAdapter);
 
+    }
+
+    private void initSortSpinner(){
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,
+                getResources().getStringArray(R.array.sort_options));
+        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sortSpinner.setAdapter(spinnerArrayAdapter);
+        sortSpinner.setOnItemSelectedListener(this);
     }
 
     @Override
@@ -87,6 +101,11 @@ public class NoteListActivity extends AppCompatActivity implements EvernoteClien
         }
     }
 
+    private void sortBy(NoteSortOrder order){
+        noteListAdapter.clearData();
+        retrieveNotes(order);
+    }
+
     private void showLoading(){
         progressBar.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.GONE);
@@ -103,4 +122,21 @@ public class NoteListActivity extends AppCompatActivity implements EvernoteClien
         noteDetailIntent.putExtra(getString(R.string.note_guid), noteListAdapter.getItem(position).getGuid());
         startActivity(noteDetailIntent);
     }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        switch (position) {
+            case 0:
+                sortBy(NoteSortOrder.CREATED);
+                break;
+            case 1:
+                sortBy(NoteSortOrder.TITLE);
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
 }

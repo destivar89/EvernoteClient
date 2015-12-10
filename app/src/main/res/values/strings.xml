@@ -5,5 +5,7 @@
     <string name="hint_content">Content</string>
     <string name="save_note">Save</string>
     <string name="note_guid">NOTE_GUID</string>
-
+    <string name="sort_by">Sort by:</string>
+    <string name="sort_by_name">name</string>
+    <string name="sort_by_date">creation date</string>
 </resources>

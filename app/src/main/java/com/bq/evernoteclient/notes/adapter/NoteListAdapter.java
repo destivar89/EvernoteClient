@@ -52,6 +52,10 @@ public class NoteListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return notes.getNotes().get(position);
     }
 
+    public void clearData() {
+        notes.clear();
+    }
+
     public interface OnItemClickListener {
         void onItemClick(View v, int position);
     }
