@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/content"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/ligth_grey">
 
     <ProgressBar
         android:id="@+id/progress_bar"
@@ -10,6 +12,32 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:visibility="gone"/>
+
+    <LinearLayout
+        android:id="@+id/feedback"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/row_margin"
+            android:text="@string/error_feedback"
+            style="@style/DetailContentTextAppearance"/>
+
+        <Button
+            android:id="@+id/retry_button"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/widget_height"
+            android:layout_margin="@dimen/row_margin"
+            android:text="@string/retry"/>
+
+    </LinearLayout>
+
+
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -21,15 +49,20 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
     <TextView
+        android:id="@+id/spinner_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/sort_by"/>
+        android:layout_marginTop="@dimen/row_margin"
+        android:layout_marginLeft="@dimen/row_margin"
+        android:text="@string/sort_by"
+        android:layout_below="@id/toolbar"/>
 
     <Spinner
         android:id="@+id/sort_spinner"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/toolbar"/>
+        android:layout_height="@dimen/widget_height"
+        android:layout_margin="@dimen/row_margin"
+        android:layout_below="@id/spinner_text"/>
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
@@ -51,6 +84,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
+        android:src="@mipmap/ic_add_white_24dp"
         android:layout_margin="@dimen/activity_horizontal_margin"/>
 
 </RelativeLayout>

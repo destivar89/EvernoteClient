@@ -8,4 +8,7 @@
     <string name="sort_by">Sort by:</string>
     <string name="sort_by_name">name</string>
     <string name="sort_by_date">creation date</string>
+    <string name="retry">Retry</string>
+    <string name="error_feedback">Sorry, seems that there is a problem with the connection</string>
+    <string name="note_created_feedback">Note created with success</string>
 </resources>

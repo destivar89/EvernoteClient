@@ -3,6 +3,7 @@ package com.bq.evernoteclient.notes.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,6 +12,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 
@@ -21,6 +24,9 @@ import com.bq.evernoteclient.notes.adapter.NoteListAdapter;
 import com.evernote.edam.notestore.NoteList;
 import com.evernote.edam.type.NoteSortOrder;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 /**
  * Created by David on 10/12/15.
  */
@@ -29,12 +35,15 @@ public class NoteListActivity extends AppCompatActivity implements EvernoteClien
         SwipeRefreshLayout.OnRefreshListener{
 
     private static final int MAX_ITEMS = 20;
+    private static final int CREATE_NOTE_CODE = 0;
 
-    private RecyclerView recyclerView;
-    private FloatingActionButton addNoteButton;
-    private ProgressBar progressBar;
-    private Spinner sortSpinner;
-    private SwipeRefreshLayout swipeRefreshLayout;
+    @Bind(R.id.recycler_view) RecyclerView recyclerView;
+    @Bind(R.id.add_note_button) FloatingActionButton addNoteButton;
+    @Bind(R.id.progress_bar) ProgressBar progressBar;
+    @Bind(R.id.sort_spinner) Spinner sortSpinner;
+    @Bind(R.id.swipe_refresh_layout) SwipeRefreshLayout swipeRefreshLayout;
+    @Bind(R.id.feedback) LinearLayout feedbackLayout;
+    @Bind(R.id.retry_button) Button retryButton;
 
     private NoteListAdapter noteListAdapter;
     private boolean isLastPage;
@@ -47,17 +56,13 @@ public class NoteListActivity extends AppCompatActivity implements EvernoteClien
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_list);
+        ButterKnife.bind(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        addNoteButton = (FloatingActionButton) findViewById(R.id.add_note_button);
-        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        sortSpinner = (Spinner) findViewById(R.id.sort_spinner);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
-
         addNoteButton.setOnClickListener(this);
+        retryButton.setOnClickListener(this);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent);
 
@@ -110,15 +115,27 @@ public class NoteListActivity extends AppCompatActivity implements EvernoteClien
     @Override
     public void onException(Exception exception) {
         hideLoading();
-        //TODO: show error feedback
+        showErrorFeedback();
+    }
+
+    private void showErrorFeedback() {
+        feedbackLayout.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.GONE);
     }
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.add_note_button){
-            Intent addNoteIntent = new Intent(this, AddNoteActivity.class);
-            startActivity(addNoteIntent);
+
+        switch (v.getId()){
+            case R.id.add_note_button:
+                Intent addNoteIntent = new Intent(this, AddNoteActivity.class);
+                startActivityForResult(addNoteIntent, CREATE_NOTE_CODE);
+                break;
+            case R.id.retry_button:
+                sortBy(selectedOrder);
+                break;
         }
+
     }
 
     private void sortBy(NoteSortOrder order){
@@ -128,6 +145,7 @@ public class NoteListActivity extends AppCompatActivity implements EvernoteClien
     }
 
     private void showLoading(){
+        feedbackLayout.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.GONE);
     }
@@ -202,5 +220,18 @@ public class NoteListActivity extends AppCompatActivity implements EvernoteClien
     @Override
     public void onRefresh() {
         sortBy(selectedOrder);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode){
+            case CREATE_NOTE_CODE:
+                if (resultCode == RESULT_OK) {
+                    Snackbar.make(findViewById(R.id.content), getString(R.string.note_created_feedback),
+                            Snackbar.LENGTH_LONG).show();
+                }
+                break;
+        }
     }
 }

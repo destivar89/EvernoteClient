@@ -8,4 +8,14 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="TitleTextAppearance">
+        <item name="android:textSize">@dimen/row_title_size</item>
+        <item name="android:textColor">@color/text_dark_grey</item>
+    </style>
+
+    <style name="DetailContentTextAppearance">
+        <item name="android:textSize">@dimen/row_title_size</item>
+        <item name="android:textColor">@color/text_grey</item>
+    </style>
+
 </resources>

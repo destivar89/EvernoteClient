@@ -1,7 +1,6 @@
 package com.bq.evernoteclient.notes.adapter;
 
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -96,14 +95,12 @@ public class NoteListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public class NoteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         public TextView title;
-        public TextView content;
 
         public NoteViewHolder(View itemView) {
 
             super(itemView);
             itemView.setOnClickListener(this);
             title = (TextView) itemView.findViewById(R.id.title_textview);
-            content = (TextView) itemView.findViewById(R.id.content_textview);
 
         }
 
@@ -117,7 +114,6 @@ public class NoteListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         NoteViewHolder noteViewHolder = (NoteViewHolder) holder;
         noteViewHolder.title.setText(notes.getNotes().get(position).getTitle());
-        noteViewHolder.content.setText(notes.getNotes().get(position).getContent());
 
     }
 
