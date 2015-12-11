@@ -3,6 +3,7 @@ package com.bq.evernoteclient.notes.activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -75,7 +76,7 @@ public class NoteDetailActivity extends AppCompatActivity implements EvernoteCli
     public void onSuccess(Note result) {
 
         title.setText(result.getTitle());
-        content.setText(result.getContent());
+        content.setText(Html.fromHtml(result.getContent()));
         hideLoading();
     }
 
