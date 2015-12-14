@@ -9,13 +9,14 @@ import android.view.View;
 import android.widget.Button;
 
 import com.bq.evernoteclient.R;
+import com.bq.evernoteclient.evernoteapi.ApiManager;
 import com.bq.evernoteclient.evernoteapi.EvernoteApiManager;
 import com.bq.evernoteclient.notes.activity.NoteListActivity;
 import com.evernote.client.android.EvernoteSession;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
-    private EvernoteApiManager manager;
+    private ApiManager manager;
     private Button loginButton;
 
     @Override
